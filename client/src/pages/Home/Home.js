@@ -3,7 +3,7 @@ import Text from "../../components/Text";
 import UserList from "../../components/UserList";
 import { usePeopleFetch } from "../../hooks";
 import { favoriteStore } from "../../stores";
-import { UpdateFavorites } from "../../actions/favoriteActions";
+
 import * as S from "./style";
 
 
@@ -11,7 +11,7 @@ import * as S from "./style";
 
 const Home = () => {
   const { users, isLoading, fetchUsersAdd } = usePeopleFetch();
-  const [favorites, setFavorits ] = useState()
+  const [favorites, setFavorits ] = useState(favoriteStore.getFavoritesArray())
 
 
   const onChange = () => {
@@ -21,10 +21,6 @@ const Home = () => {
 
   useEffect(() => {
     favoriteStore.addChangeListener(onChange);
-    if (!favorites) {
-      UpdateFavorites();
-      setFavorits(favoriteStore.getFavoritesArray());
-    }
     return () => {
       favoriteStore.removeChangeListener(onChange);
     }

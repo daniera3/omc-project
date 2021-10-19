@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Text from "../../components/Text";
 import UserList from "../../components/UserList";
 import { favoriteStore } from "../../stores";
-import { UpdateFavorites } from "../../actions/favoriteActions";
+
 import * as S from "./style";
 
 const Favorites = () => {
@@ -10,7 +10,7 @@ const Favorites = () => {
 
 
 
-  const [favorites, setFavorits ] = useState();
+  const [favorites, setFavorits ] = useState(favoriteStore.getFavoritesArray());
 
 
 
@@ -21,9 +21,6 @@ const Favorites = () => {
 
   useEffect(() => {
     favoriteStore.addChangeListener(onChange);
-    if (!favorites) {
-      setFavorits(favoriteStore.getFavoritesArray());
-    }
     return () => {
       favoriteStore.removeChangeListener(onChange);
     }

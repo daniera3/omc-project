@@ -14,14 +14,14 @@ const Login = () => {
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [massge, setMassge] = useState('')
+  const [massage, setMassage] = useState('')
 
 
 
   const onChange = () => {
     setPassword('');
     setUsername('');
-    setMassge(userStore.getMassege());
+    setMassage(userStore.getMassege());
     if (userStore.getUser() !== null) {
       alert('you`r signIn');
       history.push('/');
@@ -43,9 +43,9 @@ const Login = () => {
   const handelClick = () => {
 
     if (username === '') {
-      setMassge("Username field cannot be empty");
+      setMassage("Username field cannot be empty");
     } else if (password.length < 7) {
-      setMassge("Password length can not be less than 7 ");
+      setMassage("Password length can not be less than 7 ");
     }
     else {
       const data = { 'username': username, 'password': password };
@@ -64,7 +64,7 @@ const Login = () => {
         </Text>
       </S.Header>
       <S.Form className='form-group'>
-        <Text color='red' bold>{massge} </Text>
+        <Text color='red' bold>{massage} </Text>
         <InputText label='Username' val={username} onChange={setUsername} />
         <InputPassword value={password} onChange={setPassword} />
         <Button label="Login" color="primary" onClick={handelClick} />

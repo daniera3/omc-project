@@ -1,0 +1,12 @@
+{
+  "require": {
+    "symfony/dotenv": "^5.3",
+    "ext-pdo": "*",
+    "slim/slim": "3.1",
+    "guzzlehttp/psr7": "^2.1",
+    "ext-json": "*"
+  },
+  "require-dev": {
+    "roave/security-advisories": "dev-latest"
+  }
+}

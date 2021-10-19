@@ -5,19 +5,17 @@ import axios from "axios";
 
 
 
-const baseURL = 'http://127.0.0.1:8000/favorites/'
+axios.defaults.baseURL =  '/';
 
 export function getFavoritesFetch() {
   if (userStore.getUser() !== null) {
-    const data = JSON.stringify(userStore.getUser());
-    return axios.post(`${baseURL}getAllPerUser`, data);
+    return axios.get('favorites/getAllPerUser');
   }
 }
 
 export const putFavoritesFetch = () => {
-  let data =userStore.getUser() 
-  data['favorites']= JSON.stringify(favoriteStore.getFavoritesArray());
-  return axios.post(`${baseURL}`,  JSON.stringify(data));
+
+  return axios.put('favorites/',{'favorites':favoriteStore.getFavoritesArray()});
 
 }
 

@@ -15,14 +15,14 @@ const Register = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [massge, setMassge] = useState('')
+  const [massage, setMassage] = useState('')
 
 
   const onChange = () => {
     setPassword('');
     setConfirmPassword('');
     setUsername('');
-    setMassge(userStore.getMassege());
+    setMassage(userStore.getMassege());
     if (userStore.getUser() !== null) {
       alert('you`r signUp and singIn');
       history.push('/');
@@ -43,14 +43,14 @@ const Register = () => {
 
   const handelClick = () => {
     if (password !== confirmPassword) {
-      setMassge("Password not equile to confirm password");
+      setMassage("Password not equile to confirm password");
       setPassword('');
       setConfirmPassword('');
     }
     else if (username === '') {
-      setMassge("Username field cannot be empty");
+      setMassage("Username field cannot be empty");
     } else if (password.length < 7) {
-      setMassge("Password length can not be less than 7 ");
+      setMassage("Password length can not be less than 7 ");
     }
     else {
       const data = { 'username': username, 'password': password };
@@ -71,7 +71,7 @@ const Register = () => {
         </Text>
       </S.Header>
       <S.Form className='form-group'>
-        <Text color='red' bold>{massge} </Text>
+        <Text color='red' bold>{massage} </Text>
         <InputText label='Username' val={username} onChange={setUsername} />
         <InputPassword value={password} onChange={setPassword} id='password' />
         <InputPassword value={confirmPassword} onChange={setConfirmPassword} label="Confirm Password" id='cPassword' />

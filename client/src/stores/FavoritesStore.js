@@ -5,6 +5,7 @@ import { putFavoritesFetch } from "../hooks/useFavoritesFetch";
 import { userStore } from ".";
 
 
+
 const CHANGE_EVENT = "change";
 let _favorites = null;
 
@@ -26,11 +27,10 @@ class FavoritesStore extends EventEmitter {
         this.removeListener(CHANGE_EVENT, callback);
     }
 
-    emitChange() {
-        localStorage.setItem('favorites', JSON.stringify(_favorites));
-        if (userStore.getUser() !== null)
+    emitChange($flag=true) {
+        if (userStore.getUser() !== null && $flag)
             putFavoritesFetch().then(response => {
-                if (response.status !== 200) {
+                if (response.status !== 201) {
                     alert("Error,cant save you`r change in you`r favorites list");
                 }
             }
@@ -54,10 +54,10 @@ dispatcher.register((action) => {
                 action.favorite.then(response => {
                     if (response.status === 200) {
                         if (userStore.getUser !== null) {
-                            const localFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
-                            const data = response.data ? (response.data) : [];
-
-                            _favorites = Array.from(new Set([...data.map(dicToString), ...localFavorites.map(dicToString)])).map(stringToDic);
+                         
+                            const data = JSON.parse (response.data) || [];
+                            const favorites = _favorites || [];
+                            _favorites = Array.from(new Set([...data.map(dicToString), ...favorites.map(dicToString)])).map(stringToDic);
                         }
                         else {
                             _favorites = null;
@@ -87,7 +87,7 @@ dispatcher.register((action) => {
 
         case actionTypes.LOGOUT_USER:
             _favorites = null;
-            store.emitChange();
+            store.emitChange(false);
             break;
 
         default:

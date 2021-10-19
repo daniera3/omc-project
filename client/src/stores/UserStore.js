@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
 import dispatcher from "../utils/appDispatcher"
 import actionTypes from "../actions/actionTypes";
-
+import { UpdateFavorites } from "../actions/favoriteActions";
 
 const CHANGE_EVENT = "change";
 let _user = null;
@@ -18,7 +18,9 @@ class UserStore extends EventEmitter {
     }
 
     emitChange() {
-        sessionStorage.setItem('user', JSON.stringify(_user))
+        if (_user !== null) {
+            UpdateFavorites();
+        }
         this.emit(CHANGE_EVENT);
     }
 
@@ -39,7 +41,7 @@ dispatcher.register((action) => {
 
         case actionTypes.REGISTER_USER:
             action.user.then(response => {
-                if (response.status === 201 && response.data['username']) {
+                if (response.status === 201) {
                     _user = response.data;
                     _massege = '';
                 }
@@ -58,7 +60,7 @@ dispatcher.register((action) => {
 
         case actionTypes.LOGIN_USER:
             action.user.then(response => {
-                if (response.status === 200 && response.data['username']) {
+                if (response.status === 200) {
                     _user = response.data;
                     _massege = '';
                 }
@@ -78,14 +80,26 @@ dispatcher.register((action) => {
             break;
 
         case actionTypes.LOGIN_USER_SESSIEN:
-            _user = JSON.parse(window.sessionStorage.getItem('user'));
-            store.emitChange();
+            action.user
+                .then(response => {
+                    if (response.status === 200) {
+                        _user = response.data;
+                        store.emitChange();
+                    }
+                })
+                .catch(() => {
+                    _user = null;
+                    store.emitChange();
+                })
             break;
 
         case actionTypes.LOGOUT_USER:
-            sessionStorage.removeItem('user');
-            _user = action.user;
-            store.emitChange();
+            action.user.then(response => {
+                if (response.status === 200) {
+                    _user = null;
+                    store.emitChange();
+                }
+            });
             break;
         default:
 
