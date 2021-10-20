@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 
 import React, { useState, useEffect } from "react";
 import InputText from "../../components/InputText";
@@ -7,11 +8,11 @@ import * as S from "./style";
 import Button from "../../components/Button";
 import { userLogin } from "../../actions/userActions";
 import { userStore } from "../../stores";
-import history from "../../utils/history";
+import { useHistory } from "react-router-dom";
 
 const Login = () => {
 
-
+  const history = useHistory();
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [massage, setMassage] = useState('')

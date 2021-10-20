@@ -27,7 +27,7 @@ class FavoritesStore extends EventEmitter {
         this.removeListener(CHANGE_EVENT, callback);
     }
 
-    emitChange($flag=true) {
+    emitChange($flag = true) {
         if (userStore.getUser() !== null && $flag)
             putFavoritesFetch().then(response => {
                 if (response.status !== 201) {
@@ -50,12 +50,12 @@ const store = new FavoritesStore();
 dispatcher.register((action) => {
     switch (action.actionTypes) {
         case actionTypes.UPDATE_FAVORITES:
-            action.favorite ?
+            if (action.favorite) {
                 action.favorite.then(response => {
                     if (response.status === 200) {
                         if (userStore.getUser !== null) {
-                         
-                            const data = JSON.parse (response.data) || [];
+
+                            const data = JSON.parse(response.data) || [];
                             const favorites = _favorites || [];
                             _favorites = Array.from(new Set([...data.map(dicToString), ...favorites.map(dicToString)])).map(stringToDic);
                         }
@@ -66,10 +66,11 @@ dispatcher.register((action) => {
                     }
 
                 })
-                : () => {
-                    _favorites = null;
-                    store.emitChange();
-                }
+            }
+            else {
+                _favorites = null;
+                store.emitChange();
+            }
             break;
 
         case actionTypes.CHANGE_FAVORITES:

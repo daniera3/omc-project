@@ -1,13 +1,30 @@
 <?php
 
 use Slim\App;
+use Slim\Container;
 use Slim\Exception\MethodNotAllowedException;
 use Slim\Exception\NotFoundException;
 
 require '../vendor/autoload.php';
 require '../src/config/initialize.php';
 
-$app = new App;
+
+$c = new Container();
+$c['errorHandler'] = static function ($c) {
+    return static function ($request, $response, $exception) use ($c) {
+        return $response->withStatus(500)
+            ->withHeader('Content-Type', ' *')
+            ->write(json_encode($exception, JSON_THROW_ON_ERROR));
+    };
+};
+$c['phpErrorHandler'] = static function ($c) {
+    return static function ($request, $response, $exception) use ($c) {
+        return $response->withStatus(500)
+            ->withHeader('Content-Type', ' *')
+            ->write(json_encode($exception, JSON_THROW_ON_ERROR));
+    };
+};
+$app = new App($c);
 
 $app->add(function ($req, $res, $next) {
     $response = $next($req, $res);
@@ -33,4 +50,5 @@ require '../api/users/routes.php';
 try {
     $app->run();
 } catch (MethodNotAllowedException | NotFoundException | Exception $e) {
+
 }

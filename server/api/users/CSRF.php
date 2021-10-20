@@ -17,13 +17,11 @@ class CSRF
             session_id($session_id);
             session_start();
         }
-        error_log('CSRF    '.json_encode($body['token']));
         if (isset($_SESSION['token'], $body['token']) && $body['token'] === $_SESSION['token']) {
             $request = $request->withParsedBody(['CSRF_success' => true] + $body);
             return $next($request, $response);
         }
-        $request = $request->withParsedBody(["error" => "CSRF token not found", 'success' => false] + $body);
-        return $next($request, $response);
+        return $response->withJson(["error" => "CSRF token not found", 'success' => false], 401);
 
 
     }

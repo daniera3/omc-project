@@ -7,13 +7,10 @@ import { userStore } from "../../stores";
 import { userLogout } from "../../actions/userActions";
 
 
-const NavBar = () => {
-  const [value, setValue] = useState(0);
+const NavBar = ({value,}) => {
+  
   const [login, setLogin] = useState(false)
-  const handleChange = (_e, newValue) => {
-    
-    setValue(newValue);
-  };
+
 
 
   const onChange = () => {
@@ -49,38 +46,37 @@ const NavBar = () => {
     <AppBar position="static" color="transparent" style={{ position: "fixed", top: 0 }}>
       <Tabs
         value={value}
-        onChange={handleChange}
         aria-label="Navigation"
         indicatorColor="primary"
         textColor="primary"
       >
-        <Link to="/" style={LinkStyle} onClick={() => { handleChange(null, 0) }} >
+        <Link to="/" style={LinkStyle}  >
           <Tab label="Home" index={0} />
         </Link>
-        <Link to="/favorites" style={LinkStyle} onClick={() => { handleChange(null, 1) }} >
+        <Link to="/favorites" style={LinkStyle}  >
           <Tab label="Favorites" index={1} />
         </Link>
         {login &&
-          <Link to="/profile" style={LinkStyle} onClick={() => { handleChange(null, 2) }} >
+          <Link to="/profile" style={LinkStyle}  >
             <Tab label="Profile" index={2} />
           </Link>
         }
         {!login ?
-          <Link to="/register" style={LinkStyle} onClick={() => { handleChange(null, 4) }} >
+          <Link to="/register" style={LinkStyle}  >
             <Tab label="Register" index={4} />
           </Link>
           :
-          <Link to="/user" style={LinkStyle} onClick={() => { handleChange(null, 3) }} >
+          <Link to="/user" style={LinkStyle}  >
             <Tab label="User Panel" index={3} />
           </Link>
         }
         {!login ?
-          <Link to="/login" style={LinkStyle} onClick={() => { handleChange(null, 5) }} >
+          <Link to="/login" style={LinkStyle}  >
             <Tab label="Login" index={5} />
           </Link>
           :
-          <Link style={LinkStyle} onClick={() => { logout() }} >
-            <Tab label="Logout" index={-1} />
+          <Link to='/' style={LinkStyle} onClick={() => { logout() }} >
+            <Tab label="Logout" />
           </Link>
         }
 

@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-anonymous-default-export
 export default {
     GET_FAVORITES: "GET_FAVORITES",
     CHANGE_FAVORITES: "CHANGE_FAVORITES",

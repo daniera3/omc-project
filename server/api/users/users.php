@@ -13,7 +13,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 function getAllUsers(Request $request, Response $response): Response
 {
     $data = $request->getParsedBody();
-    error_log(json_encode($data));
+
     if (!(isset($data['success']) && $data['success'] === true)) {
         return $response->withJson(['error' => 'error'], 401);
     }
@@ -26,9 +26,9 @@ function getAllUsers(Request $request, Response $response): Response
         $user = $statement->fetchAll(PDO::FETCH_ASSOC);
         $db = null;
     } catch (PDOException $e) {
-        return $response->withJson(['error' => $$e->getMessage()], 403);
+        return $response->withJson(['error' => $e->getMessage()], 403);
     }
-    error_log(json_encode($user));
+
     return $response->withJson($user);
 }
 
@@ -46,12 +46,14 @@ function getUserDetail(Request $request, Response $response): Response
         session_id($session_id);
         session_start();
     }
-    if (isset($_SESSION['user_id'])) {
+
+    if (isset($_SESSION) && !empty($_SESSION)) {
         $user = [
-            "user_id" => $_SESSION['id'],
+            "id" => $_SESSION['id'],
             "username" => $_SESSION["username"],
             "email" => $_SESSION['email'],
         ];
+
         return $response->withJson($user);
     }
     return $response->withJson(["error" => "user details not found"], 401);
@@ -62,6 +64,7 @@ function getUserDetail(Request $request, Response $response): Response
  * @param Request $request
  * @param Response $response
  * @return Response
+ * @throws Exception
  */
 function getAdmin(Request $request, Response $response): Response
 {
@@ -69,7 +72,7 @@ function getAdmin(Request $request, Response $response): Response
     if (isset($data['success']) && $data['success'] === true) {
         $_SESSION['token'] = bin2hex(random_bytes(50));
         $data['token'] = $_SESSION['token'];
-        return $response->withJson($data, 200);
+        return $response->withJson($data);
     }
     return $response->withJson($data, 401);
 }
@@ -94,6 +97,7 @@ function loginUser(Request $request, Response $response): Response
     $user = json_decode(json_encode($user[0], JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR);
     if (password_verify(hash('sha512', $password), $user['password'])) {
         $newUser = saveInSession($user);
+
         return $response->withJson($newUser);
     }
     return $response->withJson(['error' => 'username/password is wrong'], 401);
@@ -133,11 +137,13 @@ function postUser(Request $request, Response $response): Response
 function updateUser(Request $request, Response $response): Response
 {
     $data = $request->getParsedBody();
-    error_log("updateUser   " .json_encode($data));
+    if (!isset($data['role']) && isset($data['role_login'])) {
+        $data['role'] = $data['role_login'];
+    }
     if (!update($data)) {
         return $response->withJson(["text" => "User not updated"], 405);
     }
-    return $response->withJson(["text" => "User updated"], 200);
+    return $response->withJson(["text" => "User updated"]);
 }
 
 
@@ -150,105 +156,7 @@ function logoutUser(Request $request, Response $response): Response
         session_start();
     }
     session_destroy();
-    return $response->withJson(["text" => "logged out"], 200);
-}
-
-function validateUser($username, $password, $role): array   //TODO add to login and update user
-{
-    $errors = [];
-    if (!(strlen($username) >= 4 && strlen($username) <= 15)) {
-        $errors[] = "username must be between 4 to 15 length.";
-    }
-    if (!(strlen($password) >= 6 && strlen($password) <= 20)) {
-        $errors[] = "password must be between 6 to 20 length.";
-    }
-
-    if ($role !== 'admin' && $role !== 'user') {
-        $errors[] = "role must be valid.";
-    }
-    return $errors;
-}
-
-
-function find(string $username): array
-{
-    $statement = "
-            SELECT
-                id, username, password, email,role
-            FROM
-                user
-            WHERE username = ? OR email = ?;
-        ";
-
-    try {
-        $db = new db();
-        $db = $db->connect();
-        $statement = $db->prepare($statement);
-        $statement->execute(array($username, $username));
-        $db = null;
-        return $statement->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        exit($e->getMessage());
-    }
-}
-
-
-function insert(array $input): int
-{
-    $statement = "
-            INSERT INTO user
-                (username, password, email)
-            VALUES
-                (:username, :password, :email);
-        ";
-
-    try {
-        $db = new db();
-        $db = $db->connect();
-        $statement = $db->prepare($statement);
-        $statement->execute(array(
-            'username' => $input['username'],
-            'password' => $input['password'],
-            'email' => $input['email'] ?? "",
-        ));
-        $db = null;
-        return $statement->rowCount();
-    } catch (PDOException $e) {
-        exit($e->getMessage());
-    }
-}
-
-
-function update(array $input): int
-{
-
-    if (($input['role_login'] === 'user' && $input['role'] === 'admin') || ($input['role'] !== 'admin' && $input['role'] !== 'user')) {
-        return false;
-    }
-
-    $statement = "
-            UPDATE user
-            SET
-           
-                role  = :role,
-                email = :email
-            WHERE id = :id;
-        ";
-
-    try {
-        $db = new db();
-        $db = $db->connect();
-        $statement = $db->prepare($statement);
-        $statement->execute(array(
-            'id' => $input['id'],
-            'email' => $input['email'] ?? '',
-            'role' => $input['role'],
-        ));
-        $db = null;
-        return $statement->rowCount();
-    } catch (PDOException $e) {
-        exit($e->getMessage());
-    }
+    return $response->withJson(["text" => "logged out"]);
 }
 
 
@@ -280,7 +188,104 @@ function sessionOpen(Request $request, Response $response): Response
     session_id($session_id);
     $newUser = saveInSession();
     if (isset($_SESSION) && !empty($_SESSION)) {
-        return $response->withJson($newUser, 200);
+        return $response->withJson($newUser);
     }
     return $response->withJson(['error' => 'session not found'], 401);
 }
+
+
+//function validateUser($username, $password, $role): array   //TODO add to login and update user
+//{
+//    $errors = [];
+//    if (!(strlen($username) >= 4 && strlen($username) <= 15)) {
+//        $errors[] = "username must be between 4 to 15 length.";
+//    }
+//    if (!(strlen($password) >= 6 && strlen($password) <= 20)) {
+//        $errors[] = "password must be between 6 to 20 length.";
+//    }
+//
+//    if ($role !== 'admin' && $role !== 'user') {
+//        $errors[] = "role must be valid.";
+//    }
+//    return $errors;
+//}
+
+
+function find(string $username): array
+{
+    $statement = "
+            SELECT
+                id, username, password, email,role
+            FROM
+                user
+            WHERE username = ? OR email = ?;
+        ";
+
+
+    $db = new db();
+    $db = $db->connect();
+    $statement = $db->prepare($statement);
+    $statement->execute(array($username, $username));
+    $db = null;
+    return $statement->fetchAll(PDO::FETCH_ASSOC);
+
+}
+
+
+function insert(array $input): int
+{
+
+    $statement = "
+            INSERT INTO user
+                (username, password, email)
+            VALUES
+                (:username, :password, :email);
+        ";
+
+
+        $db = new db();
+        $db = $db->connect();
+        $statement = $db->prepare($statement);
+        $statement->execute(array(
+            'username' => $input['username'],
+            'password' => $input['password'],
+            'email' => $input['email'] ?? "",
+        ));
+        $db = null;
+        return $statement->rowCount();
+
+}
+
+
+function update(array $input): int
+{
+
+
+    if (($input['role_login'] === 'user' && $input['role'] === 'admin') || ($input['role'] !== 'admin' && $input['role'] !== 'user' && $input['role_login'] !== 'Sadmin')) {
+        return false;
+    }
+
+    $statement = "
+            UPDATE user
+            SET
+           
+                role  = :role,
+                email = :email
+            WHERE id = :id;
+        ";
+
+
+        $db = new db();
+        $db = $db->connect();
+        $statement = $db->prepare($statement);
+        $statement->execute(array(
+            'id' => $input['id'],
+            'email' => $input['email'] ?? '',
+            'role' => $input['role'],
+        ));
+        $db = null;
+        return $statement->rowCount();
+
+}
+
+

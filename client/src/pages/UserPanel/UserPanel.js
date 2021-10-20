@@ -1,13 +1,14 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import Select from "../../components/Select";
 import Text from "../../components/Text";
 import * as S from "./style";
 import Button from "../../components/Button";
-import { getAllUsers,updateRole } from "../../hooks/useUserFetch";
+import { getAllUsers, updateRole } from "../../hooks/useUserFetch";
 
 
 
-const UserPanel = ({token}) => {
+const UserPanel = ({ token }) => {
 
   const permissionsOptions = [{ 'value': 'admin', 'label': 'Admin' }, { 'value': 'user', 'label': 'Regular' }];
   const [massage, setMassage] = useState('')
@@ -37,30 +38,29 @@ const UserPanel = ({token}) => {
       setUserList();
       setMassage('');
     })
-  }, [])
+  }, [token])
 
   useEffect(() => {
     if (userList) {
-      let temp= userList.filter((user) => user['id'] === selectedUser)[0];
+      let temp = userList.filter((user) => user['id'] === selectedUser)[0];
       setParmission(temp['role'])
     }
+
   }, [selectedUser])
 
 
 
   const handelClick = () => {
-    const data = {'id':selectedUser,'role':parmission,'token':token} 
-    updateRole(data).then(response=>{
+    const data = { 'id': selectedUser, 'role': parmission, 'token': token }
+    updateRole(data).then(response => {
 
-      if(response.status===200)
-      {
+      if (response.status === 200) {
         setMassage('save');
       }
-      else
-      {
+      else {
         setMassage(response.data['error'])
       }
-    }). catch(()=>{
+    }).catch(() => {
       setMassage('Sorry, we cant save you`r changes');
     })
   }

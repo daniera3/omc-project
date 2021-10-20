@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import InputText from "../../components/InputText";
 import InputPassword from "../../components/InputPassword";
@@ -6,12 +7,11 @@ import * as S from "./style";
 import Button from "../../components/Button";
 import { userStore } from "../../stores";
 import { userRegister } from "../../actions/userActions";
-import history from "../../utils/history";
-
+import { useHistory } from "react-router-dom";
 
 const Register = () => {
 
-
+  const history = useHistory();
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')

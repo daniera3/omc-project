@@ -32,7 +32,7 @@ export const isAdmin = () => {
 }
 
 export const getProfile = () => {
-    return axios.post('user/details',{withCredentials: true});
+    return axios.get('user/details',{withCredentials: true});
 
 }
 
@@ -48,6 +48,11 @@ export const updateRole = (token) => {
 
 }
 
+export const updateEmail = (data) => {
+
+    return axios.put('user/update',data,{withCredentials: true });
+
+}
 
 
 

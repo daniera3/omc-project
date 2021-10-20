@@ -10,7 +10,7 @@ $app->group('/favorites', function () {
     $this->get('/getAllPerUser', function (Request $req, Response $res): Response {
         return getFavorite($req, $res);
     });
-    $this->put('/', function (Request $req, Response $res, array $args): Response {
+    $this->put('/', function (Request $req, Response $res): Response {
         return updateFavorite($req, $res);
     });
 

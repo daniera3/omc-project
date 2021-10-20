@@ -55,16 +55,14 @@ function findFavorites(int $userId): array
             WHERE user_id = ? ;
         ";
 
-    try {
+
         $db = new db();
         $db = $db->connect();
         $statement = $db->prepare($statement);
         $statement->execute(array($userId));
         $db = null;
         return $statement->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        exit($e->getMessage());
-    }
+
 }
 
 
@@ -77,7 +75,7 @@ function favoriteUpdate(array $input): int
             WHERE user_id = :user_id;
         ";
 
-    try {
+
         $db = new db();
         $db = $db->connect();
         $statement = $db->prepare($statement);
@@ -87,7 +85,5 @@ function favoriteUpdate(array $input): int
         ));
         $db = null;
         return $statement->rowCount();
-    } catch (PDOException | JsonException $e) {
-        exit($e->getMessage());
-    }
+
 }
